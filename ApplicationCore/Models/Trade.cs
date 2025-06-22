@@ -33,4 +33,18 @@ public class Trade
     /// </summary>
     public string Id { get; set; }
 
+    public Trade()
+    {
+        
+    }
+
+    public Trade(string pair, decimal price, decimal amount, string side, DateTimeOffset time, string id)
+    {
+        Pair = pair;
+        Price = price;
+        Amount = amount;
+        Side = side;
+        Time = time;
+        Id = id;
+    }
 }
