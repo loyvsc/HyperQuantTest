@@ -2,7 +2,8 @@
 
 namespace ApplicationCore.Interfaces;
 
-public interface ITestConnector
+//Добавил наследование от IDisposable. Необходимо для корректного освобождения ресурсов
+public interface ITestConnector : IDisposable
 {
     #region Rest
 
