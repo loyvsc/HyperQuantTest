@@ -43,4 +43,20 @@ public class Candle
     /// </summary>
     public DateTimeOffset OpenTime { get; set; }
 
+    public Candle()
+    {
+        
+    }
+
+    public Candle(string pair, decimal openPrice, decimal highPrice, decimal lowPrice, decimal closePrice, decimal totalPrice, decimal totalVolume, DateTimeOffset openTime)
+    {
+        Pair = pair;
+        OpenPrice = openPrice;
+        HighPrice = highPrice;
+        LowPrice = lowPrice;
+        ClosePrice = closePrice;
+        TotalPrice = totalPrice;
+        TotalVolume = totalVolume;
+        OpenTime = openTime;
+    }
 }
