@@ -77,6 +77,33 @@ public class BitfinexConnector : ITestConnector
         throw new Exception($"Invalid period {periodInSec}");
     }
 
+    public async Task<Ticker?> GetTickerAsync(string pair)
+    {
+        if (string.IsNullOrWhiteSpace(pair))
+            throw new ArgumentNullException(nameof(pair), "pair cannot be null or empty");
+        
+        var sb = StringBuilderPool.Rent();
+        if (pair[0] != 't')
+        {
+            sb.Append('t');
+        }
+        sb.Append(pair);
+        
+        var response = await _restClient.SpotApi.ExchangeData.GetTickerAsync(sb.ToString());
+        StringBuilderPool.Return(sb);
+
+        if (!response.Success)
+            return null;
+
+        return new Ticker(pair: response.Data.Symbol, 
+            bestBidPrice: response.Data.BestBidPrice, bestBidQuantity: response.Data.BestBidQuantity,
+            bestAskPrice: response.Data.BestAskPrice, bestAskQuantity: response.Data.BestAskQuantity, 
+            dailyChange: response.Data.DailyChange, dailyChangePercentage: response.Data.DailyChangePercentage, 
+            lastPrice: response.Data.LastPrice, 
+            volume: response.Data.Volume, 
+            highPrice: response.Data.HighPrice, lowPrice: response.Data.LowPrice);
+    }
+
     private void ThrowException(Error error)
     {
         switch (error.Code)
