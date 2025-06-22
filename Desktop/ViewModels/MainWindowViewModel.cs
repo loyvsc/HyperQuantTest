@@ -14,7 +14,7 @@ public class MainWindowViewModel : NotifyPropertyChangedBase
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly ITestConnector _testConnector;
     private Portfolio _portfolio;
-    private bool _isBusy;
+    private bool _isBusy = true;
 
     public ICommand CalculateCommand { get; }
 
@@ -97,12 +97,18 @@ public class MainWindowViewModel : NotifyPropertyChangedBase
 
     private async Task<decimal?> TryDirectConversion(string fromCurrency, string toCurrency, decimal amount)
     {
+        if (toCurrency == "USDT")
+            toCurrency = "UST";
+        
         var ticker = await _testConnector.GetTickerAsync($"{fromCurrency}{toCurrency}");
         return ticker?.LastPrice * amount;
     }
 
     private async Task<decimal?> TryReverseConversion(string fromCurrency, string toCurrency, decimal amount)
     {
+        if (toCurrency == "USDT")
+            toCurrency = "UST";
+
         var ticker = await _testConnector.GetTickerAsync($"{toCurrency}{fromCurrency}");
         return ticker != null ? amount / ticker.LastPrice : null;
     }
@@ -125,17 +131,17 @@ public class MainWindowViewModel : NotifyPropertyChangedBase
 
     private async Task<decimal> ConvertToUsdt(string currency, decimal amount)
     {
-        if (currency == "USD") return amount;
+        if (currency == "USDT") return amount;
 
-        var ticker = await _testConnector.GetTickerAsync($"{currency}USDT");
+        var ticker = await _testConnector.GetTickerAsync($"{currency}UST");
         return amount * ticker.LastPrice;
     }
 
     private async Task<decimal> ConvertFromUsdt(string currency, decimal amount)
     {
-        if (currency == "USD") return amount;
+        if (currency == "USDT") return amount;
 
-        var ticker = await _testConnector.GetTickerAsync($"USDT{currency}");
+        var ticker = await _testConnector.GetTickerAsync($"UST{currency}");
         return amount / ticker.LastPrice;
     }
 }

@@ -3,10 +3,43 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Desktop"
+        xmlns:viewModels="clr-namespace:Desktop.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
+        d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}"
+        Title="MainWindow" 
+        WindowStartupLocation="CenterScreen"
+        Height="450" Width="800">
+    <Grid IsEnabled="{Binding IsBusy, UpdateSourceTrigger=PropertyChanged}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        
+        <DataGrid Grid.Column="0"
+                  Margin="0,0,6,0"
+                  ItemsSource="{Binding PortfolioValues, UpdateSourceTrigger=PropertyChanged}"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding CurrencyPair}"
+                                    Header="Currency"
+                                    Width="*"/>
+                <DataGridTextColumn Binding="{Binding Value, StringFormat='{}{0:F3}'}"
+                                    Header="Value"
+                                    TextBlock.TextAlignment="Center"
+                                    Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        
+        <StackPanel Grid.Column="1"
+                    Orientation="Vertical">
+            <TextBlock Text="Portfolio:"
+                       Margin="0,0,0,6"/>
+            
+            <ListBox ItemsSource="{Binding Portfolio.Balances}"
+                     Margin="0,0,0,6"/>
+            
+            <Button Content="Calculate!"
+                    Command="{Binding CalculateCommand}"/>
+        </StackPanel>
     </Grid>
 </Window>
