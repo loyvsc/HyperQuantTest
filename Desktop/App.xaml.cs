@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using ApplicationCore.Interfaces;
 using DAL.Connectors;
+using Desktop.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Desktop;
@@ -21,7 +22,10 @@ public partial class App : Application
         
         Exit += OnExit;
 
-        var mainWindow = new MainWindow();
+        var mainWindow = new MainWindow
+        {
+            DataContext = _serviceProvider.GetService<MainWindowViewModel>()
+        };
         mainWindow.Show();
     }
 
@@ -30,6 +34,7 @@ public partial class App : Application
         services.AddLogging();
         
         services.AddSingleton<ITestConnector, BitfinexConnector>();
+        services.AddSingleton<MainWindowViewModel>();
     }
 
     private void OnExit(object sender, ExitEventArgs e)
