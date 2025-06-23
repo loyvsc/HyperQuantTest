@@ -97,18 +97,12 @@ public class MainWindowViewModel : NotifyPropertyChangedBase
 
     private async Task<decimal?> TryDirectConversion(string fromCurrency, string toCurrency, decimal amount)
     {
-        if (toCurrency == "USDT")
-            toCurrency = "UST";
-        
         var ticker = await _testConnector.GetTickerAsync($"{fromCurrency}{toCurrency}");
         return ticker?.LastPrice * amount;
     }
 
     private async Task<decimal?> TryReverseConversion(string fromCurrency, string toCurrency, decimal amount)
     {
-        if (toCurrency == "USDT")
-            toCurrency = "UST";
-
         var ticker = await _testConnector.GetTickerAsync($"{toCurrency}{fromCurrency}");
         return ticker != null ? amount / ticker.LastPrice : null;
     }
@@ -133,7 +127,7 @@ public class MainWindowViewModel : NotifyPropertyChangedBase
     {
         if (currency == "USDT") return amount;
 
-        var ticker = await _testConnector.GetTickerAsync($"{currency}UST");
+        var ticker = await _testConnector.GetTickerAsync($"{currency}USDT");
         return amount * ticker.LastPrice;
     }
 
@@ -141,7 +135,7 @@ public class MainWindowViewModel : NotifyPropertyChangedBase
     {
         if (currency == "USDT") return amount;
 
-        var ticker = await _testConnector.GetTickerAsync($"UST{currency}");
+        var ticker = await _testConnector.GetTickerAsync($"USDT{currency}");
         return amount / ticker.LastPrice;
     }
 }
