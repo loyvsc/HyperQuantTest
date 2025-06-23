@@ -27,16 +27,8 @@ public class BitfinexConnector : ITestConnector
         
         if (maxCount is > 10000 or <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxCount), "count must be between 0 and 10000");
-        
-        var sb = StringBuilderPool.Rent();
-        if (pair[0] != 't')
-        {
-            sb.Append('t');
-        }
-        sb.Append(pair);
-        
-        var response = await _restClient.SpotApi.ExchangeData.GetTradeHistoryAsync(sb.ToString(), maxCount);
-        StringBuilderPool.Return(sb);
+
+        var response = await _restClient.SpotApi.ExchangeData.GetTradeHistoryAsync(FormatPair(pair), maxCount);
 
         if (!response.Success)
             ThrowException(response.Error);
@@ -57,15 +49,7 @@ public class BitfinexConnector : ITestConnector
         
         if (Enum.TryParse<KlineInterval>(periodInSec.ToString(), out var interval))
         {
-            var sb = StringBuilderPool.Rent();
-            if (pair[0] != 't')
-            {
-                sb.Append('t');
-            }
-            sb.Append(pair);
-            
-            var response = await _restClient.SpotApi.ExchangeData.GetKlinesAsync(sb.ToString(), interval, limit: (int?)count, startTime: from?.DateTime, endTime: to?.DateTime);
-            StringBuilderPool.Return(sb);
+            var response = await _restClient.SpotApi.ExchangeData.GetKlinesAsync(FormatPair(pair), interval, limit: (int?)count, startTime: from?.DateTime, endTime: to?.DateTime);
 
             if (!response.Success)
                 ThrowException(response.Error);
@@ -82,15 +66,7 @@ public class BitfinexConnector : ITestConnector
         if (string.IsNullOrWhiteSpace(pair))
             throw new ArgumentNullException(nameof(pair), "pair cannot be null or empty");
         
-        var sb = StringBuilderPool.Rent();
-        if (pair[0] != 't')
-        {
-            sb.Append('t');
-        }
-        sb.Append(pair);
-        
-        var response = await _restClient.SpotApi.ExchangeData.GetTickerAsync(sb.ToString());
-        StringBuilderPool.Return(sb);
+        var response = await _restClient.SpotApi.ExchangeData.GetTickerAsync(FormatPair(pair));
 
         if (!response.Success)
             return null;
@@ -132,15 +108,7 @@ public class BitfinexConnector : ITestConnector
         if (Subscriptions.ContainsKey(pair))
             return;
         
-        var sb = StringBuilderPool.Rent();
-        if (pair[0] != 't')
-        {
-            sb.Append('t');
-        }
-        sb.Append(pair);
-
-        var response = _socketClient.SpotApi.SubscribeToTradeUpdatesAsync(sb.ToString(), TradeUpdatesHandler).GetAwaiter().GetResult();
-        StringBuilderPool.Return(sb);
+        var response = _socketClient.SpotApi.SubscribeToTradeUpdatesAsync(FormatPair(pair), TradeUpdatesHandler).GetAwaiter().GetResult();
 
         if (!response.Success)
             ThrowException(response.Error);
@@ -187,15 +155,7 @@ public class BitfinexConnector : ITestConnector
         
         if (Enum.TryParse<KlineInterval>(periodInSec.ToString(), out var interval))
         {
-            var sb = StringBuilderPool.Rent();
-            if (pair[0] != 't')
-            {
-                sb.Append('t');
-            }
-            sb.Append(pair);
-            
-            var response = _socketClient.SpotApi.SubscribeToKlineUpdatesAsync(sb.ToString(), interval, CandlesUpdatesHandler).GetAwaiter().GetResult();
-            StringBuilderPool.Return(sb);
+            var response = _socketClient.SpotApi.SubscribeToKlineUpdatesAsync(FormatPair(pair), interval, CandlesUpdatesHandler).GetAwaiter().GetResult();
 
             if (!response.Success)
                 ThrowException(response.Error);
@@ -221,6 +181,19 @@ public class BitfinexConnector : ITestConnector
         {
             _socketClient.SpotApi.UnsubscribeAsync(subscriptionId).Wait();
         }
+    }
+
+    private string FormatPair(string pair)
+    {
+        var sb = StringBuilderPool.Rent();
+
+        sb.Append('t');
+        sb.Append(pair);
+        sb.Replace("USDT", "UST");
+        pair = sb.ToString();
+        StringBuilderPool.Return(sb);
+        
+        return pair;
     }
 
     public void Dispose()
